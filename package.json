@@ -1,0 +1,27 @@
+{
+  "name": "store-manager",
+  "version": "1.0.0",
+  "description": "a store manager in node",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xezian/node-store-manager.git"
+  },
+  "keywords": [
+    "store"
+  ],
+  "author": "Jason A Leo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xezian/node-store-manager/issues"
+  },
+  "homepage": "https://github.com/xezian/node-store-manager#readme",
+  "dependencies": {
+    "inquirer": "^5.0.1",
+    "mysql": "^2.15.0",
+    "table": "^4.0.2"
+  }
+}
