@@ -1,6 +1,8 @@
-// requirements
+// npm requirements
 const {table} = require("table");
 const mysql = require("mysql");
+// module requirements
+const inq = require("./inquirerCustomer.js")
 let data = [];
 let output;
 // establish a connection with mysql
@@ -20,7 +22,7 @@ connection.connect(function(err) {
 function displayProducts() {
     let query = "SELECT * FROM products";
     connection.query(query, function(err, res){
-        let row = ["ID", "Product", "Department", "Price", "Qty"];
+        let row = ["ID#", "PRODUCT", "DEPARTMENT", "PRICE", "QTY"];
         data.push(row);
         for (let i = 0; i < res.length; i++) {
             row = [];
@@ -29,6 +31,7 @@ function displayProducts() {
         }
         output = table(data);
         console.log(output);
+        inq.askCustomer(res);
     })
     connection.end();
 };
