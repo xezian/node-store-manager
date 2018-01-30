@@ -3,8 +3,6 @@ const {table} = require("table");
 const mysql = require("mysql");
 // module requirements
 const inq = require("./inquirerCustomer.js")
-let data = [];
-let output;
 // establish a connection with mysql
 const connection = mysql.createConnection({
     host: "localhost",
@@ -13,6 +11,27 @@ const connection = mysql.createConnection({
     password: "",
     database: "bamazon"
 });
+// export the function to purchase an item
+module.exports.itemPurchased = function(item, amount) {
+    let newAmt = item.stock_quantity - amount;
+    let query = `UPDATE products SET ? WHERE ?`;
+    connection.query(query, [
+        {
+            stock_quantity: newAmt
+        },
+        {
+            id: item.id
+        }
+    ], function(err, res){
+        if(err) throw err;
+        console.log(`Thank you! Here are your ${amount} ${item.product_name}(s).`);
+        inq.seeMenu();
+    })
+};
+module.exports.updatedMenu = function() {
+    console.log(`Updated Catalog:`)
+    displayProducts();
+};
 // connect to the connection and do something
 connection.connect(function(err) {
     if (err) throw err;
@@ -20,6 +39,8 @@ connection.connect(function(err) {
 });
 // function to display products to the user
 function displayProducts() {
+    let data = [];
+    let output;
     let query = "SELECT * FROM products";
     connection.query(query, function(err, res){
         let row = ["ID#", "PRODUCT", "DEPARTMENT", "PRICE", "QTY"];
@@ -33,5 +54,4 @@ function displayProducts() {
         console.log(output);
         inq.askCustomer(res);
     })
-    connection.end();
 };
