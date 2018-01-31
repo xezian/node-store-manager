@@ -1,12 +1,13 @@
 const inquirer = require("inquirer");
 const bMan = require("./bamazonManager");
-// functions are fun
-function menuOptions(items) {
+// inquirer functions to offer options to a manager, ultimately each path leads to bMan which is where we interact with the mysql database
+// main menu (takes 'items' for reference)
+function menuOptions(items){
     inquirer.prompt([
         {
-            message: "Hello Bamazon Manager. What would you like to do?",
+            message: "Welcome to Bamazon Manager. What would you like to do?",
             type: "list",
-            choices: ["View Products for Sale", "View Low Inventory", "Add To Inventory", "Add New Product"],
+            choices: ["View Products for Sale", "View Low Inventory", "Add To Inventory", "Add New Product", "Quit Bamazon Manager"],
             name: "whichChoiceManager"
         }
     ]).then(function(answer){
@@ -23,10 +24,14 @@ function menuOptions(items) {
             case "Add New Product":
                 whatNewProduct(items);
                 break;
+            case "Quit Bamazon Manager":
+                process.exit();
+                break;
         }
     })
 };
-function whatToAdd(items) {
+// which item should we add inventory for?
+function whatToAdd(items){
     inquirer.prompt([
         {
             message: "Please provide the ID# of the product that the inventory of is one to which you are adding.",
@@ -60,7 +65,9 @@ function confirmAdd(item){
         bMan.addToInventory(item, answer.amount);
     })
 };
-function whatNewProduct(items) {
+// inquirer path below to get all the info needed to create a whole new product to put into an existing or a new department. This way we can call addNewProduct(name, dept, price, amount)
+// asks for the name and checks the name
+function whatNewProduct(items){
     let nameArray = [];
     let deptArray = [];
     for (let i = 0; i < items.length; i++) {
@@ -71,21 +78,23 @@ function whatNewProduct(items) {
     }
     inquirer.prompt([
         {
-            message: `HOW EXCITING! Please begin by providing the new product's name`,
+            message: `HOW EXCITING! Please begin by providing the new product's name:`,
             name: "whatName",
             type: "input"   
         }
     ]).then(function(answer){
-        if(nameArray.includes(answer.whatName)){
+        let whatToAdd = answer.whatName.trim();
+        if(nameArray.includes(whatToAdd)){
             console.log("But we already have that product. Please consider adding to the inventory instead!");
             whatNewProduct(items);
             return;
         }
-        console.log(`Cool cool. Looks like you want to add some ${answer.whatName}`);
-        whatDepartment(deptArray, answer.whatName);
+        console.log(`Cool cool. Lets add some ${answer.whatName}`);
+        whatDepartment(deptArray, whatToAdd);
     })
 };
-function whatDepartment(deps, name) {
+// name is good. asks for the department provides list of departments with CREATE NEW DEPARTMENT option
+function whatDepartment(deps, name){
     deps.push("Create New Department");
     inquirer.prompt([
         {
@@ -95,10 +104,63 @@ function whatDepartment(deps, name) {
             choices: deps,
         }
     ]).then(function(answer){
-        if(answer.deptOfChoice==="Create New Department"){
-            console.log("TODO: CREATE NEW DEPARTMENT")
-        } else {
-            console.log(`ALRIGHT WE CAN PUT IT IN ${answer.deptOfChoice}`);
+        let whichOne = answer.deptOfChoice;
+        if(whichOne==="Create New Department"){
+            createNewDepartment(deps, name);
+        }else{
+            console.log(`Great, I'll put it in ${whichOne}`);
+            priceAndQuantity(name, whichOne);
+        }
+    })
+};
+// makes new department if requested and checks the new name against existing departments
+function createNewDepartment(deps, name){
+    inquirer.prompt([
+        {
+            message: `OK. What should the new Department be called?`,
+            name: `newDepartment`,
+            type: `input`,
+        }
+    ]).then(function(answer){
+        let whichOne = answer.newDepartment.trim();
+        if(deps.includes(whichOne)){
+            console.log(`Don't be silly, the ${whichOne} department already exists!`);
+            whatDepartment(deps, name);
+        }else{
+            console.log(`Great, I'll create ${whichOne} now, and put it in there`);
+            priceAndQuantity(name, whichOne);
+        }
+    })
+};
+// asks for the cost and how many to add
+function priceAndQuantity(name, dept){
+    inquirer.prompt([
+        {
+            message: `OK. What is the cost for each ${name}? $`,
+            type: "input",
+            name: "howMuch"
+        },
+        {
+            message: function(answer){
+                return `Alright cool. Almost done. Lastly, how many ${name} will you be adding to ${dept} for [$${answer.howMuch}] apiece?`;
+            },
+            type: "input",
+            name: "howMany"
+        }
+    ]).then(function(answers){
+        let price = parseInt(answers.howMuch);
+        let amount = parseInt(answers.howMany);
+        if(price===NaN||amount===NaN){
+            console.log(`That doesn't look like a real number!`);
+            priceAndQuantity(name, dept);
+        }else if(price<1){
+            console.log(`Please enter a price of 1 or higher`)
+            priceAndQuantity(name, dept);
+        }else if(amount<1){
+            console.log(`Please enter an amount of 1 or more`)
+            priceAndQuantity(name, dept);
+        }else{
+            bMan.addNewProduct(name, dept, price, amount);
         }
     })
 };

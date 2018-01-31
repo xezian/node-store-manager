@@ -11,7 +11,10 @@ const connection = mySquirrel.createConnection({
     password: "",
     database: "bamazon"
 });
-seeMenu();
+connection.connect(function(err) {
+    if(err) throw err;
+    seeMenu();
+});
 function seeMenu() {
     connection.query("SELECT * FROM products", function(err, res){
         inq.menuOptions(res);
@@ -63,5 +66,39 @@ module.exports.addToInventory = function(item, amount){
 };
 // Add New Product
 module.exports.addNewProduct = function(name, department, price, amount){
-    
+    connection.query(`SELECT * FROM products`, function(err, res){
+        let deptArr = [];
+        let deptId; 
+        if(err) throw err;
+        for(let i = 0; i < res.length; i++){
+            deptArr.push(res[i].department_name);
+        };
+        if(deptArr.includes(department)){
+            for(let i = 0; i < res.length; i++) {
+                if(res[i].department_name===department){
+                    deptId = res[i].id;
+                }
+            }
+        }else{
+            deptId = res.length + 1;
+        };
+        console.log(deptId);
+        updateTable(name, department, price, amount, deptId);
+    })
+};
+function updateTable(name, department, price, amount, deptId) {
+    let query = `UPDATE products SET id = id + 1 WHERE id >= ${deptId} ORDER BY id DESC`
+    connection.query(query, function(err, res){
+        if(err) throw err;
+        console.log(res);
+        queryNewProduct(name, department, price, amount, deptId);
+    })
+}
+function queryNewProduct(name, department, price, amount, deptId) {
+    let query = `INSERT INTO products (id, product_name, department_name, price, stock_quantity) VALUES (${deptId}, "${name}", "${department}", ${price}, ${amount})`;
+    connection.query(query, function(err, res){
+        if(err) throw err;
+        console.log(`Thank you! There are now ${amount} ${name}(s) in ${department} for [$${price}] apiece`);
+        seeMenu();
+    })
 };
