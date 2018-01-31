@@ -34,7 +34,7 @@ function connectAndDisplay(query) {
         };
         output = table(data);
         console.log(output);
-        inq.menuOptions(res);
+        seeMenu();
     })
 }
 // View Products for Sale
@@ -76,24 +76,24 @@ module.exports.addNewProduct = function(name, department, price, amount){
         if(deptArr.includes(department)){
             for(let i = 0; i < res.length; i++) {
                 if(res[i].department_name===department){
-                    deptId = res[i].id;
+                    deptId = res[i].id + 1;
                 }
             }
         }else{
             deptId = res.length + 1;
         };
-        console.log(deptId);
         updateTable(name, department, price, amount, deptId);
     })
 };
+// change the ID of everything else in the table from the department and forward
 function updateTable(name, department, price, amount, deptId) {
     let query = `UPDATE products SET id = id + 1 WHERE id >= ${deptId} ORDER BY id DESC`
     connection.query(query, function(err, res){
         if(err) throw err;
-        console.log(res);
         queryNewProduct(name, department, price, amount, deptId);
     })
 }
+// insert into the table at the location with the now missing ID
 function queryNewProduct(name, department, price, amount, deptId) {
     let query = `INSERT INTO products (id, product_name, department_name, price, stock_quantity) VALUES (${deptId}, "${name}", "${department}", ${price}, ${amount})`;
     connection.query(query, function(err, res){
