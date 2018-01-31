@@ -1,5 +1,5 @@
 const inquirer = require("inquirer");
-const customer = require("./bamazonCustomer.js")
+const bCus = require("./bamazonCustomer.js")
 function askCustomer(items) {
     inquirer.prompt([
         {
@@ -88,7 +88,7 @@ function confirmQuantity(item, amount, total){
             confirmAmount(item);
             return;
         } else if (answer.buyIt==="Yeah!") {
-            customer.itemPurchased(item, amount);
+            bCus.itemPurchased(item, amount);
         }
     })
 }
@@ -102,7 +102,7 @@ function seeMenu() {
         },
     ]).then(function(answer){
         if(answer.refreshMenu) {
-            customer.updatedMenu();
+            bCus.updatedMenu();
         }
     })
 };

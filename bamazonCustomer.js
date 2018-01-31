@@ -13,7 +13,7 @@ const connection = mysql.createConnection({
 });
 // export the function to purchase an item
 module.exports.itemPurchased = function(item, amount) {
-    let newAmt = item.stock_quantity - amount;
+    let newAmt = parseInt(item.stock_quantity) - parseInt(amount);
     let query = `UPDATE products SET ? WHERE ?`;
     connection.query(query, [
         {
@@ -43,6 +43,7 @@ function displayProducts() {
     let output;
     let query = "SELECT * FROM products";
     connection.query(query, function(err, res){
+        if(err) throw err;
         let row = ["ID#", "PRODUCT", "DEPARTMENT", "PRICE", "QTY"];
         data.push(row);
         for (let i = 0; i < res.length; i++) {
