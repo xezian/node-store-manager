@@ -62,7 +62,13 @@ function confirmAdd(item){
             default: 0
         }
     ]).then(function(answer){
-        bMan.addToInventory(item, answer.amount);
+        let amt = parseInt(answer.amount);
+        if(isNaN(amt)){
+            console.log(`Sorry friend. ${answer.amount} doesn't seem to be a number.`)
+            confirmAdd(item);
+            return;
+        }
+        // bMan.addToInventory(item, amt);
     })
 };
 // inquirer path below to get all the info needed to create a whole new product to put into an existing or a new department. This way we can call addNewProduct(name, dept, price, amount)
@@ -141,6 +147,14 @@ function priceAndQuantity(name, dept){
             name: "howMuch"
         },
         {
+            when: function(answer) {
+                let amt = answer.howMuch;
+                if(isNaN(amt)){
+                    return false;
+                } else {
+                    return true;
+                }
+            },
             message: function(answer){
                 return `Alright cool. Almost done. Lastly, how many ${name} will you be adding to ${dept} for [$${answer.howMuch}] apiece?`;
             },
@@ -150,7 +164,7 @@ function priceAndQuantity(name, dept){
     ]).then(function(answers){
         let price = parseInt(answers.howMuch);
         let amount = parseInt(answers.howMany);
-        if(price===NaN||amount===NaN){
+        if(isNaN(price)||isNaN(amount)){
             console.log(`That doesn't look like a real number!`);
             priceAndQuantity(name, dept);
         }else if(price<1){

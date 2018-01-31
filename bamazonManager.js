@@ -49,7 +49,7 @@ module.exports.viewLowInventory = function() {
 };
 // Add to Inventory
 module.exports.addToInventory = function(item, amount){
-    let newAmt = parseInt(item.stock_quantity) + parseInt(amount);
+    let newAmt = item.stock_quantity + amount;
     let query = `UPDATE products SET ? WHERE ?`;
     connection.query(query, [
         {
