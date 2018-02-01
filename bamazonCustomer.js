@@ -2,7 +2,7 @@
 const {table} = require("table");
 const mysql = require("mysql");
 // module requirements
-const inq = require("./inquirerCustomer.js")
+const inq = require("./inquirerCustomer.js");
 // establish a connection with mysql
 const connection = mysql.createConnection({
     host: "localhost",
@@ -52,7 +52,7 @@ function displayProducts() {
         data.push(row);
         for (let i = 0; i < res.length; i++) {
             row = [];
-            row.push(res[i].id, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quantity);
+            row.push(res[i].id, res[i].product_name, res[i].department_name, "[$" + res[i].price + "]", res[i].stock_quantity);
             data.push(row);
         }
         output = table(data);

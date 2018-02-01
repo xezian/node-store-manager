@@ -2,7 +2,7 @@ const inquirer = require("inquirer");
 const bMan = require("./bamazonManager");
 // inquirer functions to offer options to a manager, ultimately each path leads to bMan which is where we interact with the mysql database
 // main menu (takes 'items' for reference)
-function menuOptions(items){
+function menuOptions(items, depts){
     inquirer.prompt([
         {
             message: "Welcome to Bamazon Manager. What would you like to do?",
@@ -22,7 +22,7 @@ function menuOptions(items){
                 whatToAdd(items);
                 break;
             case "Add New Product":
-                whatNewProduct(items);
+                whatNewProduct(items, depts);
                 break;
             case "Quit Bamazon Manager":
                 process.exit();
@@ -73,7 +73,7 @@ function confirmAdd(item, items){
             return;
         }
         if(isNaN(answer.amount)){
-            console.log(`Sorry friend. ${answer.amount} doesn't seem to be a number.`)
+            console.log(`I'm sorry my friend. ${answer.amount} doesn't seem to be a number.`)
             confirmAdd(item);
             return;
         }else{
@@ -84,14 +84,14 @@ function confirmAdd(item, items){
 };
 // inquirer path below to get all the info needed to create a whole new product to put into an existing or a new department. This way we can call addNewProduct(name, dept, price, amount)
 // asks for the name and checks the name
-function whatNewProduct(items){
-    let nameArray = [];
+function whatNewProduct(items, depts){
     let deptArray = [];
+    let nameArray = [];
     for (let i = 0; i < items.length; i++) {
         nameArray.push(items[i].product_name);
-        if(!deptArray.includes(items[i].department_name)){
-            deptArray.push(items[i].department_name);
-        }
+    }
+    for (let i = 0; i < depts.length; i++) {
+        deptArray.push(depts[i].department_name);
     }
     inquirer.prompt([
         {
@@ -112,7 +112,6 @@ function whatNewProduct(items){
 };
 // name is good. asks for the department provides list of departments with CREATE NEW DEPARTMENT option
 function whatDepartment(deps, name){
-    deps.push("Create New Department");
     inquirer.prompt([
         {
             message: `And what department should I put that into?`,
@@ -122,31 +121,8 @@ function whatDepartment(deps, name){
         }
     ]).then(function(answer){
         let whichOne = answer.deptOfChoice;
-        if(whichOne==="Create New Department"){
-            createNewDepartment(deps, name);
-        }else{
-            console.log(`Great, I'll put it in ${whichOne}`);
-            priceAndQuantity(name, whichOne);
-        }
-    })
-};
-// makes new department if requested and checks the new name against existing departments
-function createNewDepartment(deps, name){
-    inquirer.prompt([
-        {
-            message: `OK. What should the new Department be called?`,
-            name: `newDepartment`,
-            type: `input`,
-        }
-    ]).then(function(answer){
-        let whichOne = answer.newDepartment.trim();
-        if(deps.includes(whichOne)){
-            console.log(`Don't be silly, the ${whichOne} department already exists!`);
-            whatDepartment(deps, name);
-        }else{
-            console.log(`Great, I'll create ${whichOne} now, and put it in there`);
-            priceAndQuantity(name, whichOne);
-        }
+        console.log(`Great, I'll put it in ${whichOne}`);
+        priceAndQuantity(name, whichOne);
     })
 };
 // asks for the cost and how many to add

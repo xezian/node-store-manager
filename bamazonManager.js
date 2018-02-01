@@ -15,11 +15,18 @@ connection.connect(function(err) {
     if(err) throw err;
     seeMenu();
 });
-function seeMenu() {
+function seeMenu(){
     connection.query("SELECT * FROM products", function(err, res){
-        inq.menuOptions(res);
+        if (err) throw err;
+        let products = res;
+        connection.query("SELECT * FROM departments", function(err, restwo){
+            if(err)throw err;
+            let depts = restwo;
+            inq.menuOptions(products, depts);
+        })
     });
 };
+// make a table of the data from mysql
 function connectAndDisplay(query) {
     connection.query(query, function(err, res){
         let data = [];
@@ -29,14 +36,14 @@ function connectAndDisplay(query) {
         data.push(row);
         for (let i = 0; i < res.length; i++) {
             row = [];
-            row.push(res[i].id, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quantity);
+            row.push(res[i].id, res[i].product_name, res[i].department_name, "[$" + res[i].price + "]", res[i].stock_quantity);
             data.push(row);
         };
         output = table(data);
         console.log(output);
         seeMenu();
     })
-}
+};
 // View Products for Sale
 module.exports.viewProductsForSale = function() {
     let query = "SELECT * FROM products";
