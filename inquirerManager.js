@@ -37,15 +37,20 @@ function whatToAdd(items){
             message: "Please provide the ID# of the product that the inventory of is one to which you are adding.",
             name: "whichToAdd",
             type: "input",
-            default: 0
+            default: "Or hit enter to go back"
         }
     ]).then(function(response){
-        let ID = response.buyerPrompt;
+        if(response.whichToAdd==="Or hit enter to go back"){
+            console.log(`OK, going back`);
+            menuOptions(items);
+            return;
+        }
+        let ID = response.whichToAdd;
         for(let i = 0; i < items.length; i++){
             if(items[i].id==response.whichToAdd) {
                 let productName = items[i].product_name;
                 console.log(`OK! Looks like you want to add to the ${productName} inventory.`);
-                confirmAdd(items[i]);
+                confirmAdd(items[i], items);
                 return;
             }
         };
@@ -53,15 +58,20 @@ function whatToAdd(items){
         whatToAdd(items);
     })
 };
-function confirmAdd(item){
+function confirmAdd(item, items){
     inquirer.prompt([
         {
             message: `What amount will you be increasing the inventory of ${item.product_name} by?`,
             name:"amount",
             type:"input",
-            default: 0
+            default: "Or hit enter to go back"
         }
     ]).then(function(answer){
+        if(answer.amount==="Or hit enter to go back"){
+            console.log(`OK, going back`);
+            whatToAdd(items);
+            return;
+        }
         if(isNaN(answer.amount)){
             console.log(`Sorry friend. ${answer.amount} doesn't seem to be a number.`)
             confirmAdd(item);

@@ -9,6 +9,10 @@ function askCustomer(items) {
             default: 0
         }
     ]).then(function(response){
+        if(response.buyerPrompt===0){
+            console.log(`K, bye`);
+            process.exit();
+        }
         let ID = response.buyerPrompt;
         for(let i = 0; i < items.length; i++){
             if(items[i].id==response.buyerPrompt) {
