@@ -51,7 +51,7 @@ module.exports.viewProductsForSale = function() {
 };
 // View Low Inventory
 module.exports.viewLowInventory = function() {
-    let query = "SELECT * FROM products WHERE stock_quantity<=5";
+    let query = "SELECT * FROM products WHERE stock_quantity<=10";
     connectAndDisplay(query);
 };
 // Add to Inventory
